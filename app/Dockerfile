@@ -7,7 +7,7 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir --prefix=/build/install -r requirements.txt
 
 
-FROM python:3.12-alpine
+FROM python:3.12-slim
 
 WORKDIR /app
 
@@ -25,7 +25,9 @@ EXPOSE 5000
 HEALTHCHECK --interval=30s --timeout=5s \
   CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:5000/health')"
 
-RUN useradd --no-create-home appuser
+# create non-root user (works in slim Debian image)
+RUN useradd -m appuser
+
 USER appuser
 
 CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--workers", "2", "app:app"]
