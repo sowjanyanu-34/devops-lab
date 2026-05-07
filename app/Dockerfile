@@ -1,25 +1,31 @@
-# Base image — slim Python runtime
-FROM python:3.12-slim
+FROM python:3.12-slim AS builder
 
-# Set working directory inside the container
-WORKDIR /app
+WORKDIR /build
 
-# Copy requirements FIRST for layer caching
 COPY requirements.txt .
 
-# Install Python packages
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir --prefix=/build/install -r requirements.txt
 
-# Copy the rest of the app code
-COPY . .
 
-# Environment variables
+FROM python:3.12-alpine
+
+WORKDIR /app
+
+COPY --from=builder /build/install /usr/local
+
+COPY app.py .
+
 ENV FLASK_ENV=production
 ENV REDIS_HOST=redis
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
 
-# Port the app listens on
 EXPOSE 5000
 
+HEALTHCHECK --interval=30s --timeout=5s \
+  CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:5000/health')"
 
-# Start app with gunicorn
+RUN useradd --no-create-home appuser
+USER appuser
+
 CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--workers", "2", "app:app"]
