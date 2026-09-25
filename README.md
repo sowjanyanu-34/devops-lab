@@ -15,7 +15,7 @@ docker compose up --build -d
 curl http://localhost
 ```
 
-## API Endpoints
+## API Endpoints:
 | Endpoint | Method | Description |
 |----------|--------|-------------|
 | /        | GET    | Increment and return visit count |
