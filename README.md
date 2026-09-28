@@ -9,7 +9,7 @@ A Flask + Redis + Nginx stack running on Docker Compose.
 - **Flask** — visit counter app on port 5000
 - **Redis** — persistent storage for the counter
 
-## Quick Start
+## Quick Start:
 ```bash
 docker compose up --build -d
 curl http://localhost
